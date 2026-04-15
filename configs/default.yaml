@@ -1,0 +1,135 @@
+# Default configuration for Network Intrusion Detection System
+
+# Data configuration
+data:
+  train_path: "data/train.parquet"
+  test_path: "data/test.parquet"
+  val_path: "data/val.parquet"
+  synthetic_data_path: "data/synthetic_flows.parquet"
+  val_split: 0.2
+  test_split: 0.2
+  random_seed: 42
+  anonymize_ips: true
+  ip_columns: ["src_ip", "dst_ip"]
+
+# Feature engineering configuration
+features:
+  categorical_columns:
+    - "protocol_type"
+    - "service"
+    - "flag"
+  numerical_columns:
+    - "duration"
+    - "src_bytes"
+    - "dst_bytes"
+    - "land"
+    - "wrong_fragment"
+    - "urgent"
+    - "count"
+    - "srv_count"
+    - "serror_rate"
+    - "srv_serror_rate"
+    - "rerror_rate"
+    - "srv_rerror_rate"
+    - "same_srv_rate"
+    - "diff_srv_rate"
+    - "srv_diff_host_rate"
+    - "dst_host_count"
+    - "dst_host_srv_count"
+    - "dst_host_same_srv_rate"
+    - "dst_host_diff_srv_rate"
+    - "dst_host_same_src_port_rate"
+    - "dst_host_srv_diff_host_rate"
+    - "dst_host_serror_rate"
+    - "dst_host_srv_serror_rate"
+    - "dst_host_rerror_rate"
+    - "dst_host_srv_rerror_rate"
+  scaler_type: "robust"  # "standard" or "robust"
+  engineer_statistical: true
+  engineer_temporal: false
+  engineer_network: true
+  engineer_behavioral: true
+
+# Model configurations
+models:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+    random_state: 42
+  
+  xgboost:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    random_state: 42
+  
+  logistic_regression:
+    C: 1.0
+    penalty: "l2"
+    solver: "liblinear"
+    random_state: 42
+  
+  cnn:
+    input_dim: 41  # Will be set dynamically
+    filters: [32, 64, 128]
+    kernel_sizes: [3, 5, 7]
+    dropout: 0.5
+    learning_rate: 0.001
+
+# Training configuration
+training:
+  batch_size: 32
+  epochs: 100
+  learning_rate: 0.001
+  early_stopping_patience: 10
+  validation_split: 0.2
+  random_seed: 42
+  device: "auto"  # "auto", "cpu", "cuda", "mps"
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "auc"
+    - "aucpr"
+    - "specificity"
+    - "balanced_accuracy"
+  k_values: [10, 50, 100]
+  target_tpr: 0.95
+  cost_fp: 1.0
+  cost_fn: 10.0
+  thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+# Synthetic data generation
+synthetic_data:
+  n_samples: 10000
+  n_intrusions: 1000
+  random_state: 42
+
+# Logging configuration
+logging:
+  level: "INFO"
+  log_file: "logs/nids.log"
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Output configuration
+output:
+  models_dir: "models"
+  results_dir: "results"
+  plots_dir: "assets/plots"
+  logs_dir: "logs"
+  create_dirs: true
+
+# Demo configuration
+demo:
+  port: 8501
+  host: "localhost"
+  debug: false
+  theme: "light"
